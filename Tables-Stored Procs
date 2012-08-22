@@ -1,0 +1,144 @@
+
+
+/*!40101 SET NAMES utf8 */;
+
+/*!40101 SET SQL_MODE=''*/;
+
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`softwareengineering` /*!40100 DEFAULT CHARACTER SET latin1 */;
+
+USE `softwareengineering`;
+
+/*Table structure for table `category` */
+
+DROP TABLE IF EXISTS `category`;
+
+CREATE TABLE `category` (
+  `CategoryID` int(11) NOT NULL AUTO_INCREMENT,
+  `CategoryDesc` varchar(200) NOT NULL,
+  PRIMARY KEY (`CategoryID`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+
+/*Data for the table `category` */
+
+insert  into `category`(`CategoryID`,`CategoryDesc`) values (1,'Books'),(2,'Stationary');
+
+/*Table structure for table `priceschemeinfo` */
+
+DROP TABLE IF EXISTS `priceschemeinfo`;
+
+CREATE TABLE `priceschemeinfo` (
+  `PriceSchemeID` int(11) NOT NULL AUTO_INCREMENT,
+  `PriceSchemeDesc` varchar(200) NOT NULL,
+  PRIMARY KEY (`PriceSchemeID`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+
+/*Data for the table `priceschemeinfo` */
+
+insert  into `priceschemeinfo`(`PriceSchemeID`,`PriceSchemeDesc`) values (1,'Discount'),(2,'Bogo'),(3,'RegularPrice');
+
+/*Table structure for table `priceschemeprices` */
+
+DROP TABLE IF EXISTS `priceschemeprices`;
+
+CREATE TABLE `priceschemeprices` (
+  `PriceSchemePricesID` int(11) NOT NULL AUTO_INCREMENT,
+  `PriceSchemeID` int(11) NOT NULL,
+  `Quantity` int(10) unsigned NOT NULL,
+  `Price` float unsigned NOT NULL,
+  PRIMARY KEY (`PriceSchemePricesID`),
+  KEY `priceschemeinfo_priceSchemePrices_1` (`PriceSchemeID`),
+  CONSTRAINT `priceschemeinfo_priceSchemePrices_1` FOREIGN KEY (`PriceSchemeID`) REFERENCES `priceschemeinfo` (`PriceSchemeID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+
+/*Data for the table `priceschemeprices` */
+
+insert  into `priceschemeprices`(`PriceSchemePricesID`,`PriceSchemeID`,`Quantity`,`Price`) values (1,1,1,10),(2,2,20,20);
+
+/*Table structure for table `product` */
+
+DROP TABLE IF EXISTS `product`;
+
+CREATE TABLE `product` (
+  `ProductID` int(11) NOT NULL AUTO_INCREMENT,
+  `CategoryID` int(11) NOT NULL,
+  `ProductDesc` varchar(200) NOT NULL,
+  `IsTaxable` tinyint(1) NOT NULL,
+  `PriceSchemeID` int(11) NOT NULL,
+  PRIMARY KEY (`ProductID`),
+  KEY `product_category_1` (`CategoryID`),
+  KEY `product_pricingschemeprices_1` (`PriceSchemeID`),
+  CONSTRAINT `product_category_1` FOREIGN KEY (`CategoryID`) REFERENCES `category` (`CategoryID`),
+  CONSTRAINT `product_pricingschemeprices_1` FOREIGN KEY (`PriceSchemeID`) REFERENCES `priceschemeinfo` (`PriceSchemeID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=latin1;
+
+/*Data for the table `product` */
+
+insert  into `product`(`ProductID`,`CategoryID`,`ProductDesc`,`IsTaxable`,`PriceSchemeID`) values (5,1,'Book',0,1),(6,1,'Sharpner',1,2),(7,2,'Eraser',1,2),(11,1,'Book',0,1),(12,1,'Book',0,1),(13,1,'Book',0,1),(14,1,'Book',0,1),(15,1,'Book',0,1),(16,1,'Book',0,1),(17,1,'Book',0,1),(18,1,'Book',0,1),(19,1,'Book',0,1),(20,1,'Book',0,1),(21,1,'Book',0,1),(22,1,'Book',0,1),(23,1,'Book',0,1),(24,1,'Book',0,1),(25,1,'Stapler',0,1),(26,1,'Stapler',0,1),(27,1,'Stapler',0,1),(28,1,'JumpSuit',1,1);
+
+/* Procedure structure for procedure `CreateProduct` */
+
+/*!50003 DROP PROCEDURE IF EXISTS  `CreateProduct` */;
+
+DELIMITER $$
+
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `CreateProduct`(IN p_CategoryID INT, IN p_ProductDesc VARCHAR(200), IN p_IsTaxable bool, IN p_PriceSchemeID int)
+BEGIN
+   INSERT INTO product(CategoryID, ProductDesc, IsTaxable, PriceSchemeID)
+   VALUES(p_CategoryID, p_ProductDesc, p_IsTaxable, p_PriceSchemeID);
+END */$$
+DELIMITER ;
+
+/* Procedure structure for procedure `LoadPriceScheme` */
+
+/*!50003 DROP PROCEDURE IF EXISTS  `LoadPriceScheme` */;
+
+DELIMITER $$
+
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `LoadPriceScheme`(IN ID INT)
+BEGIN
+   SELECT ps.Quantity, ps.Price, psi.`PriceSchemeDesc`
+	FROM PriceSchemePrices ps
+	INNER JOIN priceschemeinfo psi
+	ON ps.`PriceSchemeID` = psi.`PriceSchemeID`
+	WHERE ps.`PriceSchemeID` = id;
+END */$$
+DELIMITER ;
+
+/* Procedure structure for procedure `LoadProduct` */
+
+/*!50003 DROP PROCEDURE IF EXISTS  `LoadProduct` */;
+
+DELIMITER $$
+
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `LoadProduct`(IN ID INT)
+BEGIN
+   SELECT p.ProductDesc, p.IsTaxable, c.CategoryDesc
+   FROM Product p
+   INNER JOIN Category c
+   on p.CategoryID = c.CategoryID
+   WHERe p.`ProductID` = ID;
+END */$$
+DELIMITER ;
+
+/* Procedure structure for procedure `RemoveProduct` */
+
+/*!50003 DROP PROCEDURE IF EXISTS  `RemoveProduct` */;
+
+DELIMITER $$
+
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `RemoveProduct`(IN ID INT)
+BEGIN
+   DELETE FROM Product
+   WHERE `ProductID` = ID;
+END */$$
+DELIMITER ;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
