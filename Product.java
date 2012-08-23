@@ -1,10 +1,10 @@
 
 public class Product {
 	
-	public int productId;
-	public String productName;
-	public String category;
-	public boolean IsTaxable;
+	private int productId;
+	private String productName;
+	private String category;
+	private boolean IsTaxable;
 	
 	public Product()
 	{
