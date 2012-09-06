@@ -1,6 +1,4 @@
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
+
 import java.sql.SQLException;
 
 
@@ -10,12 +8,17 @@ public class Application {
 	 * @param args
 	 * @throws SQLException 
 	 */
-	public static void main(String[] args)  {
+	public static void main(String[] args) throws SQLException  {
 		
-		//LoadProduct(6);
+		LoadProduct(1);
+		//getPriceSchemeDesc(2);
+		//CreateProduct(1, 90002, "Intro to History", false);
 		//RemoveProduct(6);
+		LoadCategories();
+		//CreatePriceScheme(90006, 1, 10, "test1");
 		
 	}
+	
 	public static void LoadProduct(int productID)
 	{
 		Operations operation = new Operations();
@@ -33,14 +36,36 @@ public class Application {
 		}
 	}
 	
-	public static void CreateProduct(int CategoryID, String productDescription, boolean IsTaxable, int priceSchemeID) throws SQLException
+	public static void CreateProduct(int CategoryID, int PricingSchemeID, String productDescription, boolean IsTaxable) throws SQLException
 	{
 		Operations operation = new Operations();
-		operation.CreateProduct(CategoryID, productDescription, IsTaxable, priceSchemeID);
+		operation.CreateProduct(CategoryID, PricingSchemeID, productDescription, IsTaxable);
+		System.out.println("Product: " + productDescription + " with pricing scheme: " + PricingSchemeID + " created successfully.");
 		
+	}
+	
+	
+	public static void CreatePriceScheme(int PriceSchemePricesID, int Quantity, float Price, String PricingSchemeDesc) throws SQLException
+	{
+		Operations operation = new Operations();
+		operation.CreatePriceScheme(PriceSchemePricesID, Quantity, Price, PricingSchemeDesc);
+		System.out.println("Price Scheme: " + PriceSchemePricesID + " for quantity: " + Quantity + " Price: " + Price
+				+ " and Price Scheme Description: " + PricingSchemeDesc + " was created.");
+		
+	}
+	
+	public static void getPriceSchemeDesc(int ProductID)
+	{
+		Operations op = new Operations();
+		op.getProductPricingScheme(ProductID);
+	}
+	
+	public static void LoadCategories()
+	{
+		Operations op = new Operations();
+		op.getCategory();
 	}
 	
 	
 
 }
-
