@@ -1,13 +1,4 @@
 
-
-/*!40101 SET NAMES utf8 */;
-
-/*!40101 SET SQL_MODE=''*/;
-
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 CREATE DATABASE /*!32312 IF NOT EXISTS*/`softwareengineering` /*!40100 DEFAULT CHARACTER SET latin1 */;
 
 USE `softwareengineering`;
@@ -20,43 +11,27 @@ CREATE TABLE `category` (
   `CategoryID` int(11) NOT NULL AUTO_INCREMENT,
   `CategoryDesc` varchar(200) NOT NULL,
   PRIMARY KEY (`CategoryID`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 
 /*Data for the table `category` */
 
-insert  into `category`(`CategoryID`,`CategoryDesc`) values (1,'Books'),(2,'Stationary');
-
-/*Table structure for table `priceschemeinfo` */
-
-DROP TABLE IF EXISTS `priceschemeinfo`;
-
-CREATE TABLE `priceschemeinfo` (
-  `PriceSchemeID` int(11) NOT NULL AUTO_INCREMENT,
-  `PriceSchemeDesc` varchar(200) NOT NULL,
-  PRIMARY KEY (`PriceSchemeID`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
-
-/*Data for the table `priceschemeinfo` */
-
-insert  into `priceschemeinfo`(`PriceSchemeID`,`PriceSchemeDesc`) values (1,'Discount'),(2,'Bogo'),(3,'RegularPrice');
+insert  into `category`(`CategoryID`,`CategoryDesc`) values (1,'Books'),(2,'Stationary'),(3,'Electronics');
 
 /*Table structure for table `priceschemeprices` */
 
 DROP TABLE IF EXISTS `priceschemeprices`;
 
 CREATE TABLE `priceschemeprices` (
-  `PriceSchemePricesID` int(11) NOT NULL AUTO_INCREMENT,
-  `PriceSchemeID` int(11) NOT NULL,
-  `Quantity` int(10) unsigned NOT NULL,
-  `Price` float unsigned NOT NULL,
-  PRIMARY KEY (`PriceSchemePricesID`),
-  KEY `priceschemeinfo_priceSchemePrices_1` (`PriceSchemeID`),
-  CONSTRAINT `priceschemeinfo_priceSchemePrices_1` FOREIGN KEY (`PriceSchemeID`) REFERENCES `priceschemeinfo` (`PriceSchemeID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+  `PriceSchemePricesID` int(11) NOT NULL,
+  `Quantity` int(11) NOT NULL,
+  `Price` float NOT NULL,
+  `PricingSchemeDesc` varchar(200) NOT NULL,
+  PRIMARY KEY (`PriceSchemePricesID`,`Quantity`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Data for the table `priceschemeprices` */
 
-insert  into `priceschemeprices`(`PriceSchemePricesID`,`PriceSchemeID`,`Quantity`,`Price`) values (1,1,1,10),(2,2,20,20);
+insert  into `priceschemeprices`(`PriceSchemePricesID`,`Quantity`,`Price`,`PricingSchemeDesc`) values (90001,1,50,'Buy One get one free'),(90001,2,0,'Buy One get one free'),(90002,1,50,'Buy two get one free'),(90002,2,100,'Buy two get one free'),(90002,3,0,'Buy two get one free'),(90003,1,50,'Buy one get one half off'),(90003,2,75,'Buy one get one half off'),(90004,1,50,'Buy two get one half off'),(90004,2,100,'Buy two get one half off'),(90004,3,125,'Buy two get one half off'),(90005,1,10,'Regular Price'),(90006,1,10,'test1');
 
 /*Table structure for table `product` */
 
@@ -65,19 +40,32 @@ DROP TABLE IF EXISTS `product`;
 CREATE TABLE `product` (
   `ProductID` int(11) NOT NULL AUTO_INCREMENT,
   `CategoryID` int(11) NOT NULL,
+  `PricingSchemeID` int(11) NOT NULL,
   `ProductDesc` varchar(200) NOT NULL,
   `IsTaxable` tinyint(1) NOT NULL,
-  `PriceSchemeID` int(11) NOT NULL,
   PRIMARY KEY (`ProductID`),
   KEY `product_category_1` (`CategoryID`),
-  KEY `product_pricingschemeprices_1` (`PriceSchemeID`),
+  KEY `PricingSchemeID` (`PricingSchemeID`),
   CONSTRAINT `product_category_1` FOREIGN KEY (`CategoryID`) REFERENCES `category` (`CategoryID`),
-  CONSTRAINT `product_pricingschemeprices_1` FOREIGN KEY (`PriceSchemeID`) REFERENCES `priceschemeinfo` (`PriceSchemeID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=latin1;
+  CONSTRAINT `product_ibfk_1` FOREIGN KEY (`PricingSchemeID`) REFERENCES `priceschemeprices` (`PriceSchemePricesID`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 
 /*Data for the table `product` */
 
-insert  into `product`(`ProductID`,`CategoryID`,`ProductDesc`,`IsTaxable`,`PriceSchemeID`) values (5,1,'Book',0,1),(6,1,'Sharpner',1,2),(7,2,'Eraser',1,2),(11,1,'Book',0,1),(12,1,'Book',0,1),(13,1,'Book',0,1),(14,1,'Book',0,1),(15,1,'Book',0,1),(16,1,'Book',0,1),(17,1,'Book',0,1),(18,1,'Book',0,1),(19,1,'Book',0,1),(20,1,'Book',0,1),(21,1,'Book',0,1),(22,1,'Book',0,1),(23,1,'Book',0,1),(24,1,'Book',0,1),(25,1,'Stapler',0,1),(26,1,'Stapler',0,1),(27,1,'Stapler',0,1),(28,1,'JumpSuit',1,1);
+insert  into `product`(`ProductID`,`CategoryID`,`PricingSchemeID`,`ProductDesc`,`IsTaxable`) values (1,1,90001,'TSPi',0),(2,1,90002,'Software Engineering',0),(3,3,90003,'iPad',1),(4,3,90004,'Laptop',1),(5,2,90001,'Eraser',1),(6,1,90001,'Intro to Computing',0),(7,1,90002,'Intro to History',0);
+
+/* Procedure structure for procedure `CreatePriceScheme` */
+
+/*!50003 DROP PROCEDURE IF EXISTS  `CreatePriceScheme` */;
+
+DELIMITER $$
+
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `CreatePriceScheme`(IN p_PriceSchemePricesID int, IN p_Quantity INT, IN p_Price Float, IN p_PricingSchemeDesc VARCHAR(200))
+BEGIN
+   INSERT INTO PriceSchemePrices(PriceSchemePricesID, Quantity, Price, PricingSchemeDesc)
+   VALUES(p_PriceSchemePricesID, p_Quantity, p_Price, p_PricingSchemeDesc);
+END */$$
+DELIMITER ;
 
 /* Procedure structure for procedure `CreateProduct` */
 
@@ -85,10 +73,24 @@ insert  into `product`(`ProductID`,`CategoryID`,`ProductDesc`,`IsTaxable`,`Price
 
 DELIMITER $$
 
-/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `CreateProduct`(IN p_CategoryID INT, IN p_ProductDesc VARCHAR(200), IN p_IsTaxable bool, IN p_PriceSchemeID int)
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `CreateProduct`(IN p_CategoryID INT, IN p_pricingSchemeID INT, IN p_ProductDesc VARCHAR(200), IN p_IsTaxable bool)
 BEGIN
-   INSERT INTO product(CategoryID, ProductDesc, IsTaxable, PriceSchemeID)
-   VALUES(p_CategoryID, p_ProductDesc, p_IsTaxable, p_PriceSchemeID);
+   INSERT INTO product(CategoryID, PricingSchemeID, ProductDesc, IsTaxable)
+   VALUES(p_CategoryID, p_pricingSchemeID, p_ProductDesc, p_IsTaxable);
+END */$$
+DELIMITER ;
+
+/* Procedure structure for procedure `LoadCategory` */
+
+/*!50003 DROP PROCEDURE IF EXISTS  `LoadCategory` */;
+
+DELIMITER $$
+
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `LoadCategory`()
+BEGIN
+   SELECT CategoryID, CategoryDesc
+   From Category;
+   
 END */$$
 DELIMITER ;
 
@@ -100,11 +102,11 @@ DELIMITER $$
 
 /*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `LoadPriceScheme`(IN ID INT)
 BEGIN
-   SELECT ps.Quantity, ps.Price, psi.`PriceSchemeDesc`
-	FROM PriceSchemePrices ps
-	INNER JOIN priceschemeinfo psi
-	ON ps.`PriceSchemeID` = psi.`PriceSchemeID`
-	WHERE ps.`PriceSchemeID` = id;
+   SELECT p.ProductDesc, ps.Quantity, ps.`Price`, ps.`PricingSchemeDesc`
+FROM product p
+INNER JOIN priceSchemeprices ps
+ON p.PricingSchemeID= ps.PriceSchemePricesID
+WHERE p.productID = ID;
 END */$$
 DELIMITER ;
 
@@ -121,6 +123,20 @@ BEGIN
    INNER JOIN Category c
    on p.CategoryID = c.CategoryID
    WHERe p.`ProductID` = ID;
+END */$$
+DELIMITER ;
+
+/* Procedure structure for procedure `RemovePriceScheme` */
+
+/*!50003 DROP PROCEDURE IF EXISTS  `RemovePriceScheme` */;
+
+DELIMITER $$
+
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `RemovePriceScheme`(in p_PriceSchemePricesID INT)
+BEGIN
+   delete from priceschemeprices
+   where PriceSchemePricesId = p_PriceSchemePricesID;
+   
 END */$$
 DELIMITER ;
 
@@ -141,4 +157,3 @@ DELIMITER ;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
