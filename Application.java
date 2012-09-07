@@ -10,20 +10,33 @@ public class Application {
 	 */
 	public static void main(String[] args) throws SQLException  {
 		
-		LoadProduct(1);
-		//getPriceSchemeDesc(2);
-		//CreateProduct(1, 90002, "Intro to History", false);
-		//RemoveProduct(6);
-		LoadCategories();
+		//loadPriceScheme(90001);
 		//CreatePriceScheme(90006, 1, 10, "test1");
+		//storePriceScheme(90006, 1, 30, "test3");
+		//removePriceScheme(90006);
+		//LoadProduct(1);
+		//CreateProduct(1, 90002, "Intro to History", false);
+		//storeProduct(1, 1, 90001, "TSPi", 0);
+		//RemoveProduct(6);
+		//LoadProductPriceScheme(2);
+		//LoadCategories();
 		
 	}
 	
+	//Update Product
+	public static void storeProduct(int ProductID, int CategoryID, int PricingSchemeID, String ProductDesc, int IsTaxable) throws SQLException
+	{
+		Operations op = new Operations();
+		op.storeProduct(ProductID, CategoryID, PricingSchemeID, ProductDesc, IsTaxable);
+	}
+	//Loads the product
 	public static void LoadProduct(int productID)
 	{
 		Operations operation = new Operations();
 		operation.getProducts(productID);
 	}
+	
+	//Removes the product
 	public static void RemoveProduct(int productID)
 	{
 		Operations operation = new Operations();
@@ -35,7 +48,15 @@ public class Application {
 			System.out.println("Product could not be removed.");
 		}
 	}
+	//removes the pricing scheme
+	public static void removePriceScheme(int priceSchemeID) throws SQLException
+	{
+		Operations operation = new Operations();
+		operation.removePriceScheme(priceSchemeID);
+				
+	}
 	
+	//creates a product
 	public static void CreateProduct(int CategoryID, int PricingSchemeID, String productDescription, boolean IsTaxable) throws SQLException
 	{
 		Operations operation = new Operations();
@@ -44,7 +65,7 @@ public class Application {
 		
 	}
 	
-	
+	//creates a pricing scheme
 	public static void CreatePriceScheme(int PriceSchemePricesID, int Quantity, float Price, String PricingSchemeDesc) throws SQLException
 	{
 		Operations operation = new Operations();
@@ -54,18 +75,31 @@ public class Application {
 		
 	}
 	
-	public static void getPriceSchemeDesc(int ProductID)
+	//loads the pricing scheme associated with a given product
+	public static void LoadProductPriceScheme(int ProductID)
 	{
 		Operations op = new Operations();
 		op.getProductPricingScheme(ProductID);
 	}
 	
+	//loads a pricing scheme
+	public static void loadPriceScheme(int PriceSchemePricesID)
+	{
+		Operations op = new Operations();
+		op.loadPriceScheme(PriceSchemePricesID);
+	}
+	
+	//updates the existing pricing scheme
+	public static void storePriceScheme(int priceSchemeID, int Quantity, float Price, String PricingSchemeDesc) throws SQLException
+	{
+		Operations op = new Operations();
+		op.storePriceScheme(priceSchemeID, Quantity, Price, PricingSchemeDesc);
+	}
+	
+	//loads all the categories available
 	public static void LoadCategories()
 	{
 		Operations op = new Operations();
 		op.getCategory();
 	}
-	
-	
-
 }
