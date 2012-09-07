@@ -90,6 +90,93 @@ public class Operations {
 		}	
 		
 	}
+	
+	/**
+	 * Removed a PricingScheme
+	 * @return 
+	 * @throws SQLException 
+	*/
+	public void removePriceScheme(int priceSchemeId) throws SQLException
+	{
+		Connection conn = dbInter.getConnection();
+		try {
+			CallableStatement cs = conn.prepareCall("{CALL removePriceScheme(?)}");			
+			cs.setInt(1, priceSchemeId);
+			cs.executeQuery();
+			System.out.println("PricingSchemeID : " + priceSchemeId + " removed successfully.");
+
+		} 
+		catch(NullPointerException e)
+		{
+			System.out.println(e.getMessage());
+		}
+		
+		catch (SQLException e) {
+			System.out.println("Error occurred while removing product: " + e.getMessage());
+		}	
+		
+	}
+	/**
+	 * Update PricingScheme
+	 * @return 
+	 * @throws SQLException 
+	*/
+	public void storePriceScheme(int priceSchemeID, int Quantity, float Price, String PricingSchemeDesc) throws SQLException
+	{
+		Connection conn = dbInter.getConnection();
+		try {
+			CallableStatement cs = conn.prepareCall("{CALL storePriceScheme(?, ?, ?, ?)}");			
+			cs.setInt(1, priceSchemeID);
+			cs.setInt(2, Quantity);
+			cs.setFloat(3, Price);
+			cs.setString(4, PricingSchemeDesc);
+			cs.executeQuery();
+			System.out.println("Pricing Scheme for PriceSchemeID: " + priceSchemeID + " updated to" +
+					" Quantity: " + Quantity + " Price: " + Price + " Description: " + PricingSchemeDesc );
+
+		} 
+		catch(NullPointerException e)
+		{
+			System.out.println(e.getMessage());
+		}
+		
+		catch (SQLException e) {
+			System.out.println("Error occurred while updating Pricing Scheme: " + e.getMessage());
+		}	
+		
+	}
+	
+	/**
+	 * Update Product
+	 * @return 
+	 * @throws SQLException 
+	*/
+	public void storeProduct(int ProductID, int CategoryID, int PricingSchemeID, String ProductDesc, int IsTaxable) throws SQLException
+	{
+		Connection conn = dbInter.getConnection();
+		try {
+			CallableStatement cs = conn.prepareCall("{CALL storeProduct(?, ?, ?, ?, ?)}");			
+			cs.setInt(1, ProductID);
+			cs.setInt(2, CategoryID);
+			cs.setInt(3, PricingSchemeID);
+			cs.setString(4, ProductDesc);
+			cs.setInt(5,  IsTaxable);
+			cs.executeQuery();
+			System.out.println("Product ID: " + ProductID + " updated to" +
+					" CategoryID: " + CategoryID + " PricingSchemeID: " + PricingSchemeID + " Product Desc: " + ProductDesc + " IsTaxable: " + IsTaxable );
+
+		} 
+		catch(NullPointerException e)
+		{
+			System.out.println(e.getMessage());
+		}
+		
+		catch (SQLException e) {
+			System.out.println("Error occurred while updating product: " + e.getMessage());
+		}	
+		
+	}
+	
 	/**
 	 * Returns the product with Name and Category name
 	 * @param productID
@@ -118,6 +205,7 @@ public class Operations {
 
            
        }
+	
 	/**
 	 * Returns the product and all the pricing scheme attached to the product
 	 * @param productID
@@ -130,7 +218,7 @@ public class Operations {
             
 		
 		try {
-			CallableStatement cStmt = conn.prepareCall("{CALL LoadPriceScheme(?)}");
+			CallableStatement cStmt = conn.prepareCall("{CALL LoadProductPriceScheme(?)}");
 			 cStmt.setInt(1, productID);
 	         cStmt.execute();
 	           ResultSet rs1 = cStmt.getResultSet();
@@ -147,6 +235,35 @@ public class Operations {
 
            
    }
+	/**
+	 * Returns the pricing scheme info by PriceSchemeID
+	 * @param productID
+	 */
+	public void loadPriceScheme(int priceSchemeId)
+	{
+		
+		
+		Connection conn = ((DBInteraction) dbInter).getConnection();
+            
+		
+		try {
+			CallableStatement cStmt = conn.prepareCall("{CALL LoadPriceScheme(?)}");
+			 cStmt.setInt(1, priceSchemeId);
+	         cStmt.execute();
+	           ResultSet rs1 = cStmt.getResultSet();
+	           while (rs1.next()) {
+	                System.out.println("PricingSchemeID: " + rs1.getInt("PriceSchemePricesID") + " " + ", Quantity: " + rs1.getInt("Quantity")
+	                		+ ", Price: " + rs1.getInt("Price") + ", Price Scheme description: " + rs1.getString("PricingSchemeDesc") );
+	           }
+	           rs1.close();
+		} catch (SQLException e) {
+			
+			e.printStackTrace();
+		}
+          
+
+           
+   }	
 	
 	/**
 	 * Returns the product and all the pricing scheme attached to the product
