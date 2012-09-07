@@ -31,7 +31,7 @@ CREATE TABLE `priceschemeprices` (
 
 /*Data for the table `priceschemeprices` */
 
-insert  into `priceschemeprices`(`PriceSchemePricesID`,`Quantity`,`Price`,`PricingSchemeDesc`) values (90001,1,50,'Buy One get one free'),(90001,2,0,'Buy One get one free'),(90002,1,50,'Buy two get one free'),(90002,2,100,'Buy two get one free'),(90002,3,0,'Buy two get one free'),(90003,1,50,'Buy one get one half off'),(90003,2,75,'Buy one get one half off'),(90004,1,50,'Buy two get one half off'),(90004,2,100,'Buy two get one half off'),(90004,3,125,'Buy two get one half off'),(90005,1,10,'Regular Price'),(90006,1,10,'test1');
+insert  into `priceschemeprices`(`PriceSchemePricesID`,`Quantity`,`Price`,`PricingSchemeDesc`) values (90001,1,50,'Buy One get one free'),(90001,2,0,'Buy One get one free'),(90002,1,50,'Buy two get one free'),(90002,2,100,'Buy two get one free'),(90002,3,0,'Buy two get one free'),(90003,1,50,'Buy one get one half off'),(90003,2,75,'Buy one get one half off'),(90004,1,50,'Buy two get one half off'),(90004,2,100,'Buy two get one half off'),(90004,3,125,'Buy two get one half off'),(90005,1,10,'Regular Price');
 
 /*Table structure for table `product` */
 
@@ -52,7 +52,7 @@ CREATE TABLE `product` (
 
 /*Data for the table `product` */
 
-insert  into `product`(`ProductID`,`CategoryID`,`PricingSchemeID`,`ProductDesc`,`IsTaxable`) values (1,1,90001,'TSPi',0),(2,1,90002,'Software Engineering',0),(3,3,90003,'iPad',1),(4,3,90004,'Laptop',1),(5,2,90001,'Eraser',1),(6,1,90001,'Intro to Computing',0),(7,1,90002,'Intro to History',0);
+insert  into `product`(`ProductID`,`CategoryID`,`PricingSchemeID`,`ProductDesc`,`IsTaxable`) values (1,1,90001,'TSPi',1),(2,1,90002,'Software Engineering',0),(3,3,90003,'iPad',1),(4,3,90004,'Laptop',1),(5,2,90001,'Eraser',1),(6,1,90001,'Intro to Computing',0),(7,1,90002,'Intro to History',0);
 
 /* Procedure structure for procedure `CreatePriceScheme` */
 
@@ -102,11 +102,9 @@ DELIMITER $$
 
 /*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `LoadPriceScheme`(IN ID INT)
 BEGIN
-   SELECT p.ProductDesc, ps.Quantity, ps.`Price`, ps.`PricingSchemeDesc`
-FROM product p
-INNER JOIN priceSchemeprices ps
-ON p.PricingSchemeID= ps.PriceSchemePricesID
-WHERE p.productID = ID;
+  SELECT PriceSchemePricesID, Quantity, Price, PricingSchemeDesc
+  from priceschemeprices
+  where PriceSchemePricesID = id;
 END */$$
 DELIMITER ;
 
@@ -126,17 +124,32 @@ BEGIN
 END */$$
 DELIMITER ;
 
-/* Procedure structure for procedure `RemovePriceScheme` */
+/* Procedure structure for procedure `LoadProductPriceScheme` */
 
-/*!50003 DROP PROCEDURE IF EXISTS  `RemovePriceScheme` */;
+/*!50003 DROP PROCEDURE IF EXISTS  `LoadProductPriceScheme` */;
 
 DELIMITER $$
 
-/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `RemovePriceScheme`(in p_PriceSchemePricesID INT)
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `LoadProductPriceScheme`(IN ID INT)
 BEGIN
-   delete from priceschemeprices
-   where PriceSchemePricesId = p_PriceSchemePricesID;
-   
+   SELECT p.ProductDesc, ps.Quantity, ps.`Price`, ps.`PricingSchemeDesc`
+FROM product p
+INNER JOIN priceSchemeprices ps
+ON p.PricingSchemeID= ps.PriceSchemePricesID
+WHERE p.productID = ID;
+END */$$
+DELIMITER ;
+
+/* Procedure structure for procedure `removePriceScheme` */
+
+/*!50003 DROP PROCEDURE IF EXISTS  `removePriceScheme` */;
+
+DELIMITER $$
+
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `removePriceScheme`(IN ID INT)
+BEGIN
+  delete from priceschemeprices
+	where priceSchemePricesID = id;
 END */$$
 DELIMITER ;
 
@@ -150,6 +163,39 @@ DELIMITER $$
 BEGIN
    DELETE FROM Product
    WHERE `ProductID` = ID;
+END */$$
+DELIMITER ;
+
+/* Procedure structure for procedure `storePriceScheme` */
+
+/*!50003 DROP PROCEDURE IF EXISTS  `storePriceScheme` */;
+
+DELIMITER $$
+
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `storePriceScheme`(IN ID INT, in p_Quantity int, in p_Price float, in p_PricingSchemeDesc varchar(200))
+BEGIN
+	Update priceschemeprices
+	set Quantity = p_Quantity
+	, Price = p_Price
+	, PricingSchemeDesc = p_PricingSchemeDesc
+	where PriceSchemePricesID = id;
+END */$$
+DELIMITER ;
+
+/* Procedure structure for procedure `storeProduct` */
+
+/*!50003 DROP PROCEDURE IF EXISTS  `storeProduct` */;
+
+DELIMITER $$
+
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `storeProduct`(IN ID INT, in p_categoryID int, in p_PricingSchemeID int, in p_ProductDesc varchar(200), in p_IsTaxable tinyint)
+BEGIN
+	update Product
+	SET CategoryID = p_categoryID
+	, PricingSchemeID = p_PricingSchemeID
+	, ProductDesc = p_ProductDesc
+	, IsTaxable = p_IsTaxable
+	where ProductID = id;
 END */$$
 DELIMITER ;
 
