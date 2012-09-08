@@ -42,15 +42,14 @@ public class Operations {
 	 * @return 
 	 * @throws SQLException 
 	*/
-	public boolean CreatePriceScheme(int PriceSchemePricesID, int Quantity, float Price, String PricingSchemeDesc)
+	public boolean CreatePriceScheme(int Quantity, float Price, String PricingSchemeDesc)
 	{
 		Connection conn = dbInter.getConnection();
 		try {
-			CallableStatement cs = conn.prepareCall("{CALL CreatePriceScheme(?, ?, ?, ?)}");
-			cs.setInt(1, PriceSchemePricesID);
-			cs.setInt(2, Quantity);
-			cs.setFloat(3, Price);
-			cs.setString(4, PricingSchemeDesc);
+			CallableStatement cs = conn.prepareCall("{CALL CreatePriceScheme(?, ?, ?)}");
+			cs.setInt(1, Quantity);
+			cs.setFloat(2, Price);
+			cs.setString(3, PricingSchemeDesc);
 			cs.executeQuery();	
 			//System.out.println("New Pricing Scheme created.");
 		} 
@@ -252,7 +251,7 @@ public class Operations {
 	         cStmt.execute();
 	           ResultSet rs1 = cStmt.getResultSet();
 	           while (rs1.next()) {
-	                System.out.println("PricingSchemeID: " + rs1.getInt("PriceSchemePricesID") + " " + ", Quantity: " + rs1.getInt("Quantity")
+	                System.out.println("PricingSchemeID: " + rs1.getInt("PricingSchemeID") + " " + ", Quantity: " + rs1.getInt("Quantity")
 	                		+ ", Price: " + rs1.getInt("Price") + ", Price Scheme description: " + rs1.getString("PricingSchemeDesc") );
 	           }
 	           rs1.close();
