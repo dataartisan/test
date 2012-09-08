@@ -22,16 +22,32 @@ insert  into `category`(`CategoryID`,`CategoryDesc`) values (1,'Books'),(2,'Stat
 DROP TABLE IF EXISTS `priceschemeprices`;
 
 CREATE TABLE `priceschemeprices` (
-  `PriceSchemePricesID` int(11) NOT NULL,
+  `PriceSchemePricesID` int(11) NOT NULL AUTO_INCREMENT,
   `Quantity` int(11) NOT NULL,
   `Price` float NOT NULL,
-  `PricingSchemeDesc` varchar(200) NOT NULL,
-  PRIMARY KEY (`PriceSchemePricesID`,`Quantity`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `PricingSchemeID` int(11) NOT NULL,
+  PRIMARY KEY (`PriceSchemePricesID`),
+  KEY `PricingSchemeID` (`PricingSchemeID`),
+  CONSTRAINT `priceschemeprices_ibfk_1` FOREIGN KEY (`PricingSchemeID`) REFERENCES `pricingscheme` (`PricingSchemeID`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 
 /*Data for the table `priceschemeprices` */
 
-insert  into `priceschemeprices`(`PriceSchemePricesID`,`Quantity`,`Price`,`PricingSchemeDesc`) values (90001,1,50,'Buy One get one free'),(90001,2,0,'Buy One get one free'),(90002,1,50,'Buy two get one free'),(90002,2,100,'Buy two get one free'),(90002,3,0,'Buy two get one free'),(90003,1,50,'Buy one get one half off'),(90003,2,75,'Buy one get one half off'),(90004,1,50,'Buy two get one half off'),(90004,2,100,'Buy two get one half off'),(90004,3,125,'Buy two get one half off'),(90005,1,10,'Regular Price');
+insert  into `priceschemeprices`(`PriceSchemePricesID`,`Quantity`,`Price`,`PricingSchemeID`) values (1,1,10,90001),(2,2,0,90001),(4,1,100,90002),(5,2,100,90002),(6,3,0,90002),(7,1,50,90003),(8,2,75,90003),(9,1,100,90004),(10,2,100,90004),(11,3,50,90004),(13,1,40,90008);
+
+/*Table structure for table `pricingscheme` */
+
+DROP TABLE IF EXISTS `pricingscheme`;
+
+CREATE TABLE `pricingscheme` (
+  `PricingSchemeID` int(11) NOT NULL AUTO_INCREMENT,
+  `PricingSchemeDesc` varchar(200) NOT NULL,
+  PRIMARY KEY (`PricingSchemeID`)
+) ENGINE=InnoDB AUTO_INCREMENT=90009 DEFAULT CHARSET=latin1;
+
+/*Data for the table `pricingscheme` */
+
+insert  into `pricingscheme`(`PricingSchemeID`,`PricingSchemeDesc`) values (90001,'Buy one get one free'),(90002,'Buy two get one free'),(90003,'Buy one get one half off'),(90004,'Buy two get one half off'),(90005,'Regular price'),(90008,'test3 1111');
 
 /*Table structure for table `product` */
 
@@ -45,10 +61,10 @@ CREATE TABLE `product` (
   `IsTaxable` tinyint(1) NOT NULL,
   PRIMARY KEY (`ProductID`),
   KEY `product_category_1` (`CategoryID`),
-  KEY `PricingSchemeID` (`PricingSchemeID`),
-  CONSTRAINT `product_category_1` FOREIGN KEY (`CategoryID`) REFERENCES `category` (`CategoryID`),
-  CONSTRAINT `product_ibfk_1` FOREIGN KEY (`PricingSchemeID`) REFERENCES `priceschemeprices` (`PriceSchemePricesID`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+  KEY `product_ibfk_1` (`PricingSchemeID`),
+  CONSTRAINT `product_ibfk_1` FOREIGN KEY (`PricingSchemeID`) REFERENCES `pricingscheme` (`PricingSchemeID`),
+  CONSTRAINT `product_category_1` FOREIGN KEY (`CategoryID`) REFERENCES `category` (`CategoryID`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 
 /*Data for the table `product` */
 
@@ -60,10 +76,14 @@ insert  into `product`(`ProductID`,`CategoryID`,`PricingSchemeID`,`ProductDesc`,
 
 DELIMITER $$
 
-/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `CreatePriceScheme`(IN p_PriceSchemePricesID int, IN p_Quantity INT, IN p_Price Float, IN p_PricingSchemeDesc VARCHAR(200))
+/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `CreatePriceScheme`(IN p_Quantity INT, IN p_Price Float, IN p_PricingSchemeDesc VARCHAR(200))
 BEGIN
-   INSERT INTO PriceSchemePrices(PriceSchemePricesID, Quantity, Price, PricingSchemeDesc)
-   VALUES(p_PriceSchemePricesID, p_Quantity, p_Price, p_PricingSchemeDesc);
+   INSERT INTO PricingScheme(PricingSchemeDesc)
+   VALUES(p_PricingSchemeDesc);
+   
+   INSERT INTO Priceschemeprices(PricingSchemeID, Quantity, Price)
+   VALUES(LAST_INSERT_ID(), p_Quantity, p_Price);
+   
 END */$$
 DELIMITER ;
 
@@ -102,9 +122,11 @@ DELIMITER $$
 
 /*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `LoadPriceScheme`(IN ID INT)
 BEGIN
-  SELECT PriceSchemePricesID, Quantity, Price, PricingSchemeDesc
-  from priceschemeprices
-  where PriceSchemePricesID = id;
+ SELECT ps.PricingSchemeID, psp.Quantity, psp.Price, ps.`PricingSchemeDesc`
+FROM priceschemeprices psp
+INNER JOIN pricingScheme ps
+ON psp.`PricingSchemeID` = ps.`PricingSchemeID`  
+  where ps.pricingSchemeID = id;
 END */$$
 DELIMITER ;
 
@@ -132,11 +154,13 @@ DELIMITER $$
 
 /*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `LoadProductPriceScheme`(IN ID INT)
 BEGIN
-   SELECT p.ProductDesc, ps.Quantity, ps.`Price`, ps.`PricingSchemeDesc`
-FROM product p
-INNER JOIN priceSchemeprices ps
-ON p.PricingSchemeID= ps.PriceSchemePricesID
-WHERE p.productID = ID;
+	SELECT p.ProductDesc, psp.Quantity, psp.`Price`, ps.`PricingSchemeDesc`
+	FROM product p
+	INNER JOIN pricingscheme ps
+	ON p.PricingSchemeID = ps.PricingSchemeID
+	INNER JOIN priceSchemePrices psp
+	ON ps.PricingSchemeID = psp.PricingSchemeID
+	WHERE p.productID = ID;
 END */$$
 DELIMITER ;
 
@@ -148,8 +172,11 @@ DELIMITER $$
 
 /*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `removePriceScheme`(IN ID INT)
 BEGIN
-  delete from priceschemeprices
-	where priceSchemePricesID = id;
+	delete from priceschemeprices
+	where pricingSchemeID = id;
+	
+	delete from pricingScheme
+	where pricingSchemeID = id;
 END */$$
 DELIMITER ;
 
@@ -174,11 +201,15 @@ DELIMITER $$
 
 /*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `storePriceScheme`(IN ID INT, in p_Quantity int, in p_Price float, in p_PricingSchemeDesc varchar(200))
 BEGIN
+	update pricingScheme
+	set PricingSchemeDesc = p_PricingSchemeDesc 
+	where PricingSchemeID = id;
+	
 	Update priceschemeprices
 	set Quantity = p_Quantity
 	, Price = p_Price
-	, PricingSchemeDesc = p_PricingSchemeDesc
-	where PriceSchemePricesID = id;
+	
+	where PricingSchemeID = id;
 END */$$
 DELIMITER ;
 
