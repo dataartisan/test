@@ -11,15 +11,17 @@ public class Application {
 	public static void main(String[] args) throws SQLException  {
 		
 		//loadPriceScheme(90001);
-		//CreatePriceScheme(90006, 1, 10, "test1");
-		//storePriceScheme(90006, 1, 30, "test3");
-		//removePriceScheme(90006);
+		//removePriceScheme(90007);
 		//LoadProduct(1);
-		//CreateProduct(1, 90002, "Intro to History", false);
-		//storeProduct(1, 1, 90001, "TSPi", 0);
-		//RemoveProduct(6);
+		//CreateProduct(1, 90002, "Intro to Pyschology", false);
+		//storeProduct(8, 1, 90001, "TSPi test", 0);
+		//RemoveProduct(8);
 		//LoadProductPriceScheme(2);
 		//LoadCategories();
+		//CreatePriceScheme(1, 10, "test1 12 12 12");
+		//Need to work on
+		storePriceScheme(90008, 1, 40, "test3 1111");
+				
 		
 	}
 	
@@ -66,11 +68,11 @@ public class Application {
 	}
 	
 	//creates a pricing scheme
-	public static void CreatePriceScheme(int PriceSchemePricesID, int Quantity, float Price, String PricingSchemeDesc) throws SQLException
+	public static void CreatePriceScheme(int Quantity, float Price, String PricingSchemeDesc) throws SQLException
 	{
 		Operations operation = new Operations();
-		operation.CreatePriceScheme(PriceSchemePricesID, Quantity, Price, PricingSchemeDesc);
-		System.out.println("Price Scheme: " + PriceSchemePricesID + " for quantity: " + Quantity + " Price: " + Price
+		operation.CreatePriceScheme(Quantity, Price, PricingSchemeDesc);
+		System.out.println("Price Scheme  for quantity: " + Quantity + " Price: " + Price
 				+ " and Price Scheme Description: " + PricingSchemeDesc + " was created.");
 		
 	}
