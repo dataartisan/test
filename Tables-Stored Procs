@@ -22,18 +22,17 @@ insert  into `category`(`CategoryID`,`CategoryDesc`) values (1,'Books'),(2,'Stat
 DROP TABLE IF EXISTS `priceschemeprices`;
 
 CREATE TABLE `priceschemeprices` (
-  `PriceSchemePricesID` int(11) NOT NULL AUTO_INCREMENT,
+  `PricingSchemeID` int(11) NOT NULL,
   `Quantity` int(11) NOT NULL,
   `Price` float NOT NULL,
-  `PricingSchemeID` int(11) NOT NULL,
-  PRIMARY KEY (`PriceSchemePricesID`),
+  PRIMARY KEY (`Quantity`,`PricingSchemeID`),
   KEY `PricingSchemeID` (`PricingSchemeID`),
   CONSTRAINT `priceschemeprices_ibfk_1` FOREIGN KEY (`PricingSchemeID`) REFERENCES `pricingscheme` (`PricingSchemeID`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Data for the table `priceschemeprices` */
 
-insert  into `priceschemeprices`(`PriceSchemePricesID`,`Quantity`,`Price`,`PricingSchemeID`) values (1,1,10,90001),(2,2,0,90001),(4,1,100,90002),(5,2,100,90002),(6,3,0,90002),(7,1,50,90003),(8,2,75,90003),(9,1,100,90004),(10,2,100,90004),(11,3,50,90004),(13,1,40,90008);
+insert  into `priceschemeprices`(`PricingSchemeID`,`Quantity`,`Price`) values (90001,1,10),(90002,1,100),(90003,1,50),(90004,1,100),(90009,1,40),(90001,2,0),(90002,2,100),(90003,2,75),(90004,2,100),(90002,3,0),(90004,3,50);
 
 /*Table structure for table `pricingscheme` */
 
@@ -43,11 +42,11 @@ CREATE TABLE `pricingscheme` (
   `PricingSchemeID` int(11) NOT NULL AUTO_INCREMENT,
   `PricingSchemeDesc` varchar(200) NOT NULL,
   PRIMARY KEY (`PricingSchemeID`)
-) ENGINE=InnoDB AUTO_INCREMENT=90009 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=90010 DEFAULT CHARSET=latin1;
 
 /*Data for the table `pricingscheme` */
 
-insert  into `pricingscheme`(`PricingSchemeID`,`PricingSchemeDesc`) values (90001,'Buy one get one free'),(90002,'Buy two get one free'),(90003,'Buy one get one half off'),(90004,'Buy two get one half off'),(90005,'Regular price'),(90008,'test3 1111');
+insert  into `pricingscheme`(`PricingSchemeID`,`PricingSchemeDesc`) values (90001,'Buy one get one free'),(90002,'Buy two get one free'),(90003,'Buy one get one half off'),(90004,'Buy two get one half off'),(90005,'Regular price'),(90009,'test3 1111');
 
 /*Table structure for table `product` */
 
@@ -64,7 +63,7 @@ CREATE TABLE `product` (
   KEY `product_ibfk_1` (`PricingSchemeID`),
   CONSTRAINT `product_ibfk_1` FOREIGN KEY (`PricingSchemeID`) REFERENCES `pricingscheme` (`PricingSchemeID`),
   CONSTRAINT `product_category_1` FOREIGN KEY (`CategoryID`) REFERENCES `category` (`CategoryID`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
 
 /*Data for the table `product` */
 
